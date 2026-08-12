@@ -1,11 +1,11 @@
 package com.example.hospital.controller;
 
 import com.example.hospital.dtos.AppointmentReqDto;
+import com.example.hospital.dtos.AppointmentResponseDto;
 import com.example.hospital.dtos.DoctorReqDto;
+import com.example.hospital.dtos.DoctorResponseDto;
 import com.example.hospital.dtos.PatientReqDto;
-import com.example.hospital.model.Appointment;
-import com.example.hospital.model.Doctor;
-import com.example.hospital.model.Patient;
+import com.example.hospital.dtos.PatientResponseDto;
 import com.example.hospital.service.HospitalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,44 +20,62 @@ public class HospitalController {
 
     private final HospitalService service;
 
+    // ================= PATIENT =================
+
     @PostMapping("/patients")
-    public Patient addPatient(@Valid @RequestBody PatientReqDto dto) {
+    public PatientResponseDto addPatient(
+            @Valid @RequestBody PatientReqDto dto) {
+
         return service.addPatient(dto);
     }
 
-    @PostMapping("/doctors")
-    public Doctor addDoctor(@Valid @RequestBody DoctorReqDto dto) {
-        return service.addDoctor(dto);
-    }
-
-    @PostMapping("/appointments")
-    public Appointment bookAppointment(@Valid @RequestBody AppointmentReqDto dto) {
-        return service.bookAppointment(dto);
-    }
-
     @GetMapping("/patients")
-    public Page<Patient> getPatients(Pageable pageable) {
+    public Page<PatientResponseDto> getPatients(Pageable pageable) {
+
         return service.getAllPatients(pageable);
     }
 
-    @GetMapping("/doctors")
-    public Page<Doctor> getDoctors(Pageable pageable) {
-        return service.getAllDoctors(pageable);
-    }
-
-    @GetMapping("/appointments")
-    public Page<Appointment> getAppointments(Pageable pageable) {
-        return service.getAllAppointments(pageable);
-    }
-
-
     @GetMapping("/patients/{id}")
-    public Patient getPatientById(@PathVariable Long id) {
+    public PatientResponseDto getPatientById(@PathVariable Long id) {
+
         return service.getPatientById(id);
     }
 
+
+    // ================= DOCTOR =================
+
+    @PostMapping("/doctors")
+    public DoctorResponseDto addDoctor(
+            @Valid @RequestBody DoctorReqDto dto) {
+
+        return service.addDoctor(dto);
+    }
+
+    @GetMapping("/doctors")
+    public Page<DoctorResponseDto> getDoctors(Pageable pageable) {
+
+        return service.getAllDoctors(pageable);
+    }
+
     @GetMapping("/doctors/{id}")
-    public Doctor getDoctorById(@PathVariable Long id) {
+    public DoctorResponseDto getDoctorById(@PathVariable Long id) {
+
         return service.getDoctorById(id);
+    }
+
+
+    // ================= APPOINTMENT =================
+
+    @PostMapping("/appointments")
+    public AppointmentResponseDto bookAppointment(
+            @Valid @RequestBody AppointmentReqDto dto) {
+
+        return service.bookAppointment(dto);
+    }
+
+    @GetMapping("/appointments")
+    public Page<AppointmentResponseDto> getAppointments(Pageable pageable) {
+
+        return service.getAllAppointments(pageable);
     }
 }

@@ -1,8 +1,11 @@
 package com.example.hospital.service;
 
 import com.example.hospital.dtos.AppointmentReqDto;
+import com.example.hospital.dtos.AppointmentResponseDto;
 import com.example.hospital.dtos.DoctorReqDto;
+import com.example.hospital.dtos.DoctorResponseDto;
 import com.example.hospital.dtos.PatientReqDto;
+import com.example.hospital.dtos.PatientResponseDto;
 import com.example.hospital.exception.ResourceNotFoundException;
 import com.example.hospital.model.Appointment;
 import com.example.hospital.model.Doctor;
@@ -25,77 +28,156 @@ public class HospitalService {
     private final DoctorRepo doctorRepo;
     private final AppointmentRepo appointmentRepo;
 
-    public Patient addPatient(PatientReqDto dto) {
+    // ==================== CREATE PATIENT ====================
+
+    public PatientResponseDto addPatient(PatientReqDto dto) {
+
         Patient patient = new Patient();
+
         patient.setName(dto.getName());
         patient.setAge(dto.getAge());
-        return patientRepo.save(patient);
+
+        Patient savedPatient = patientRepo.save(patient);
+
+        return new PatientResponseDto(
+                savedPatient.getId(),
+                savedPatient.getName(),
+                savedPatient.getAge()
+        );
     }
 
-    public Doctor addDoctor(DoctorReqDto dto) {
+    // ==================== CREATE DOCTOR ====================
+
+    public DoctorResponseDto addDoctor(DoctorReqDto dto) {
+
         Doctor doctor = new Doctor();
+
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
-        return doctorRepo.save(doctor);
+
+        Doctor savedDoctor = doctorRepo.save(doctor);
+
+        return new DoctorResponseDto(
+                savedDoctor.getId(),
+                savedDoctor.getName(),
+                savedDoctor.getSpecialization()
+        );
     }
 
-    // ========== PAGINATION: ALL THREE ==========
+    // ==================== GET ALL PATIENTS ====================
 
-    public Page<Patient> getAllPatients(Pageable pageable) {
-        return patientRepo.findAll(pageable);
+    public Page<PatientResponseDto> getAllPatients(Pageable pageable) {
+
+        return patientRepo.findAll(pageable)
+                .map(patient -> new PatientResponseDto(
+                        patient.getId(),
+                        patient.getName(),
+                        patient.getAge()
+                ));
     }
 
-    public Page<Doctor> getAllDoctors(Pageable pageable) {
-        return doctorRepo.findAll(pageable);
+    // ==================== GET ALL DOCTORS ====================
+
+    public Page<DoctorResponseDto> getAllDoctors(Pageable pageable) {
+
+        return doctorRepo.findAll(pageable)
+                .map(doctor -> new DoctorResponseDto(
+                        doctor.getId(),
+                        doctor.getName(),
+                        doctor.getSpecialization()
+                ));
     }
 
-    public Page<Appointment> getAllAppointments(Pageable pageable) {
-        return appointmentRepo.findAll(pageable);
+    // ==================== GET ALL APPOINTMENTS ====================
+
+    public Page<AppointmentResponseDto> getAllAppointments(Pageable pageable) {
+
+        return appointmentRepo.findAll(pageable)
+                .map(appointment -> new AppointmentResponseDto(
+                        appointment.getId(),
+                        appointment.getPatient().getId(),
+                        appointment.getPatient().getName(),
+                        appointment.getDoctor().getId(),
+                        appointment.getDoctor().getName(),
+                        appointment.getReason(),
+                        appointment.getDate()
+                ));
     }
 
-    // ========== GET BY ID ==========
+    // ==================== GET PATIENT BY ID ====================
 
-    public Patient getPatientById(Long id) {
-        return patientRepo.findById(id)
+    public PatientResponseDto getPatientById(Long id) {
+
+        Patient patient = patientRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Patient not found with id " + id
                         )
                 );
+
+        return new PatientResponseDto(
+                patient.getId(),
+                patient.getName(),
+                patient.getAge()
+        );
     }
 
-    public Doctor getDoctorById(Long id) {
-        return doctorRepo.findById(id)
+    // ==================== GET DOCTOR BY ID ====================
+
+    public DoctorResponseDto getDoctorById(Long id) {
+
+        Doctor doctor = doctorRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Doctor not found with id " + id
                         )
                 );
+
+        return new DoctorResponseDto(
+                doctor.getId(),
+                doctor.getName(),
+                doctor.getSpecialization()
+        );
     }
 
-    // ========== BOOK APPOINTMENT ==========
+    // ==================== BOOK APPOINTMENT ====================
 
-    public Appointment bookAppointment(AppointmentReqDto dto) {
+    public AppointmentResponseDto bookAppointment(AppointmentReqDto dto) {
+
         Patient patient = patientRepo.findById(dto.getPatientId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Patient not found with id " + dto.getPatientId()
+                                "Patient not found with id "
+                                        + dto.getPatientId()
                         )
                 );
 
         Doctor doctor = doctorRepo.findById(dto.getDoctorId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Doctor not found with id " + dto.getDoctorId()
+                                "Doctor not found with id "
+                                        + dto.getDoctorId()
                         )
                 );
 
         Appointment appointment = new Appointment();
+
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
         appointment.setReason(dto.getReason());
         appointment.setDate(dto.getDate());
 
-        return appointmentRepo.save(appointment);
+        Appointment savedAppointment =
+                appointmentRepo.save(appointment);
+
+        return new AppointmentResponseDto(
+                savedAppointment.getId(),
+                savedAppointment.getPatient().getId(),
+                savedAppointment.getPatient().getName(),
+                savedAppointment.getDoctor().getId(),
+                savedAppointment.getDoctor().getName(),
+                savedAppointment.getReason(),
+                savedAppointment.getDate()
+        );
     }
 }
