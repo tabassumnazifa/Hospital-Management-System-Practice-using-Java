@@ -9,10 +9,11 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI hospitalOpenAPI() {
-        return new OpenAPI().info(new Info()
-                .title("Hospital Management API")
-                .description("My first professional layered Spring Boot app")
-                .version("1.0"));
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Hospital Management System API")
+                        .version("1.0")
+                        .description("REST API for Hospital Management System"));
     }
 }
