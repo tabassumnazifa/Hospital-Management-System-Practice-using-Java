@@ -71,7 +71,7 @@ public class HospitalService {
         return patientRepo.findAll(pageable)
                 .map(patient -> new PatientResponseDto(
                         patient.getId(),
-                        patient.getName(),
+                        patient.getName(),       
                         patient.getAge()
                 ));
     }
