@@ -1,63 +1,54 @@
-package com.example.hospital.service;
+package com.example.hospital.controller;
 
 import com.example.hospital.dtos.AppointmentReqDto;
+import com.example.hospital.dtos.DoctorReqDto;
+import com.example.hospital.dtos.PatientReqDto;
 import com.example.hospital.model.Appointment;
 import com.example.hospital.model.Doctor;
 import com.example.hospital.model.Patient;
-import com.example.hospital.repo.AppointmentRepo;
-import com.example.hospital.repo.DoctorRepo;
-import com.example.hospital.repo.PatientRepo;
-import org.springframework.stereotype.Service;
+import com.example.hospital.service.HospitalService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
-@Service
-public class HospitalService {
+@RestController
+@RequestMapping("/api/hospital")
 
-    private final PatientRepo patientRepo;
-    private final DoctorRepo doctorRepo;
-    private final AppointmentRepo appointmentRepo;
+// Lombok automatically generates the constructor
+// for the final HospitalService field.
+@RequiredArgsConstructor
+public class HospitalController {
 
-    public HospitalService(PatientRepo patientRepo, DoctorRepo doctorRepo, AppointmentRepo appointmentRepo) {
-        this.patientRepo = patientRepo;
-        this.doctorRepo = doctorRepo;
-        this.appointmentRepo = appointmentRepo;
+    private final HospitalService service;
+
+    @PostMapping("/patients")
+    public Patient addPatient(@RequestBody PatientReqDto dto) {  // using DTO 
+        return service.addPatient(dto);
     }
 
-    public Patient addPatient(Patient patient) {
-        return patientRepo.save(patient);
+    @PostMapping("/doctors")
+    public Doctor addDoctor(@RequestBody DoctorReqDto dto) {
+        return service.addDoctor(dto);
     }
 
-    public Doctor addDoctor(Doctor doctor) {
-        return doctorRepo.save(doctor);
+    @GetMapping("/patients")
+    public List<Patient> getPatients() {
+        return service.getAllPatients();
     }
 
-    public List<Patient> getAllPatients() {
-        return patientRepo.findAll();
+    @GetMapping("/doctors")
+    public List<Doctor> getDoctors() {
+        return service.getAllDoctors();
     }
 
-    public List<Doctor> getAllDoctors() {
-        return doctorRepo.findAll();
+    @PostMapping("/appointments")
+    public Appointment bookAppointment(@RequestBody AppointmentReqDto dto) {
+        return service.bookAppointment(dto);
     }
 
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepo.findAll();
-    }
-
-    public Appointment bookAppointment(AppointmentReqDto dto) {
-        Patient patient = patientRepo.findById(dto.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient not found!"));
-
-        Doctor doctor = doctorRepo.findById(dto.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("Doctor not found!"));
-
-        Appointment appointment = new Appointment();
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
-        appointment.setReason(dto.getReason());
-        appointment.setDate(LocalDate.now());
-
-        return appointmentRepo.save(appointment);
+    @GetMapping("/appointments")
+    public List<Appointment> getAppointments() {
+        return service.getAllAppointments();
     }
 }
