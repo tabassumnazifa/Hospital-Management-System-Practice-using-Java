@@ -9,9 +9,9 @@ import com.example.hospital.model.Patient;
 import com.example.hospital.service.HospitalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/hospital")
@@ -30,35 +30,34 @@ public class HospitalController {
         return service.addDoctor(dto);
     }
 
-
-    @GetMapping("/patients")
-    public List<Patient> getPatients() {
-        return service.getAllPatients();
-    }
-
-    @GetMapping("/doctors")
-    public List<Doctor> getDoctors() {
-        return service.getAllDoctors();
-    }
-
-    @GetMapping("/patients/{id}")
-    public Patient getPatientById(@PathVariable Long id) {
-        return service.getPatientById(id);  
-    }
-
-    @GetMapping("/doctors/{id}")
-    public Doctor getDoctorById(@PathVariable Long id) {
-        return service.getDoctorById(id);  
-    }
-
-    // ========== Appointments ==========
     @PostMapping("/appointments")
     public Appointment bookAppointment(@Valid @RequestBody AppointmentReqDto dto) {
         return service.bookAppointment(dto);
     }
 
+    @GetMapping("/patients")
+    public Page<Patient> getPatients(Pageable pageable) {
+        return service.getAllPatients(pageable);
+    }
+
+    @GetMapping("/doctors")
+    public Page<Doctor> getDoctors(Pageable pageable) {
+        return service.getAllDoctors(pageable);
+    }
+
     @GetMapping("/appointments")
-    public List<Appointment> getAppointments() {
-        return service.getAllAppointments();
+    public Page<Appointment> getAppointments(Pageable pageable) {
+        return service.getAllAppointments(pageable);
+    }
+
+
+    @GetMapping("/patients/{id}")
+    public Patient getPatientById(@PathVariable Long id) {
+        return service.getPatientById(id);
+    }
+
+    @GetMapping("/doctors/{id}")
+    public Doctor getDoctorById(@PathVariable Long id) {
+        return service.getDoctorById(id);
     }
 }

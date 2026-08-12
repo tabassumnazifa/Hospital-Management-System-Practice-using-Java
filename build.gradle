@@ -20,20 +20,19 @@ repositories {
 dependencies {
 
     // ========== Spring Boot Core Starters ==========
-    implementation 'org.springframework.boot:spring-boot-starter-web'              // REST API, JSON, Tomcat
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'         // Database + Hibernate
-    implementation 'org.springframework.boot:spring-boot-starter-validation'       // 👈 NEW: @Valid, @NotNull, @NotBlank
+    implementation 'org.springframework.boot:spring-boot-starter-web'             
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'         
+    implementation 'org.springframework.boot:spring-boot-starter-validation'       
 
     // ========== API Documentation ==========
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'       // Swagger UI (/swagger-ui.html)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'     
 
     // ========== Database Driver ==========
-    runtimeOnly 'org.postgresql:postgresql'                                        // PostgreSQL driver (runtime only)
-
+    runtimeOnly 'org.postgresql:postgresql'                                       
     // ========== Lombok ==========
-    compileOnly 'org.projectlombok:lombok'                                         // For main code
+    compileOnly 'org.projectlombok:lombok'                                         
     annotationProcessor 'org.projectlombok:lombok'
-    testCompileOnly 'org.projectlombok:lombok'                                     // For test code
+    testCompileOnly 'org.projectlombok:lombok'                                  
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     // ========== Testing ==========

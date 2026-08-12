@@ -13,9 +13,9 @@ import com.example.hospital.repo.PatientRepo;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,44 +26,36 @@ public class HospitalService {
     private final AppointmentRepo appointmentRepo;
 
     public Patient addPatient(PatientReqDto dto) {
-
         Patient patient = new Patient();
-
         patient.setName(dto.getName());
         patient.setAge(dto.getAge());
-
         return patientRepo.save(patient);
     }
 
     public Doctor addDoctor(DoctorReqDto dto) {
-
         Doctor doctor = new Doctor();
-
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
-
         return doctorRepo.save(doctor);
     }
 
+    // ========== PAGINATION: ALL THREE ==========
 
-    public List<Patient> getAllPatients() {
-        return patientRepo.findAll();
+    public Page<Patient> getAllPatients(Pageable pageable) {
+        return patientRepo.findAll(pageable);
     }
 
-
-    public List<Doctor> getAllDoctors() {
-        return doctorRepo.findAll();
+    public Page<Doctor> getAllDoctors(Pageable pageable) {
+        return doctorRepo.findAll(pageable);
     }
 
-
-
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepo.findAll();
+    public Page<Appointment> getAllAppointments(Pageable pageable) {
+        return appointmentRepo.findAll(pageable);
     }
 
+    // ========== GET BY ID ==========
 
     public Patient getPatientById(Long id) {
-
         return patientRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -72,9 +64,7 @@ public class HospitalService {
                 );
     }
 
-
     public Doctor getDoctorById(Long id) {
-
         return doctorRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -83,10 +73,9 @@ public class HospitalService {
                 );
     }
 
+    // ========== BOOK APPOINTMENT ==========
 
     public Appointment bookAppointment(AppointmentReqDto dto) {
-
-    
         Patient patient = patientRepo.findById(dto.getPatientId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -102,13 +91,11 @@ public class HospitalService {
                 );
 
         Appointment appointment = new Appointment();
-
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
         appointment.setReason(dto.getReason());
         appointment.setDate(dto.getDate());
 
-        // Save appointment to database.
         return appointmentRepo.save(appointment);
     }
 }
