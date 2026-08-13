@@ -6,6 +6,8 @@ import com.example.hospital.dtos.DoctorReqDto;
 import com.example.hospital.dtos.DoctorResponseDto;
 import com.example.hospital.dtos.PatientReqDto;
 import com.example.hospital.dtos.PatientResponseDto;
+import com.example.hospital.dtos.UpdateDoctorDto;
+import com.example.hospital.dtos.UpdatePatientDto;
 import com.example.hospital.exception.ResourceNotFoundException;
 import com.example.hospital.model.Appointment;
 import com.example.hospital.model.Doctor;
@@ -178,6 +180,52 @@ public class HospitalService {
                 savedAppointment.getDoctor().getName(),
                 savedAppointment.getReason(),
                 savedAppointment.getDate()
+        );
+    }
+
+    // ==================== UPDATE PATIENT ====================
+
+    public PatientResponseDto updatePatient(Long id, UpdatePatientDto dto) {
+
+        Patient patient = patientRepo.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Patient not found with id " + id
+                        )
+                );
+
+        patient.setName(dto.getName());
+        patient.setAge(dto.getAge());
+
+        Patient updatedPatient = patientRepo.save(patient);
+
+        return new PatientResponseDto(
+                updatedPatient.getId(),
+                updatedPatient.getName(),
+                updatedPatient.getAge()
+        );
+    }
+
+    // ==================== UPDATE DOCTOR ====================
+
+    public DoctorResponseDto updateDoctor(Long id, UpdateDoctorDto dto) {
+
+        Doctor doctor = doctorRepo.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Doctor not found with id " + id
+                        )
+                );
+
+        doctor.setName(dto.getName());
+        doctor.setSpecialization(dto.getSpecialization());
+
+        Doctor updatedDoctor = doctorRepo.save(doctor);
+
+        return new DoctorResponseDto(
+                updatedDoctor.getId(),
+                updatedDoctor.getName(),
+                updatedDoctor.getSpecialization()
         );
     }
 }
