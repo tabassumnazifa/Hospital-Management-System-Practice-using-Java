@@ -4,13 +4,11 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;  
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 public class AppointmentReqDto {
 
     @NotNull(message = "patientId is required")         

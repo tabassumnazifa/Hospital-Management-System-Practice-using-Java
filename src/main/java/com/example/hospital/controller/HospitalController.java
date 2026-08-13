@@ -13,8 +13,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/hospital")
@@ -23,13 +25,32 @@ public class HospitalController {
 
     private final HospitalService service;
 
-    // ================= PATIENT =================
-
+   
     @PostMapping("/patients")
-    @ResponseStatus(HttpStatus.CREATED)
-    public PatientResponseDto addPatient(@Valid @RequestBody PatientReqDto dto) {
-        return service.addPatient(dto);
+    public ResponseEntity<PatientResponseDto> addPatient(@Valid @RequestBody PatientReqDto dto) {
+        PatientResponseDto response = service.addPatient(dto);
+        return ResponseEntity
+                .created(URI.create("/api/hospital/patients/" + response.getId()))
+                .body(response);
     }
+
+    @PostMapping("/doctors")
+    public ResponseEntity<DoctorResponseDto> addDoctor(@Valid @RequestBody DoctorReqDto dto) {
+        DoctorResponseDto response = service.addDoctor(dto);
+        return ResponseEntity
+                .created(URI.create("/api/hospital/doctors/" + response.getId()))
+                .body(response);
+    }
+
+    @PostMapping("/appointments")
+    public ResponseEntity<AppointmentResponseDto> bookAppointment(@Valid @RequestBody AppointmentReqDto dto) {
+        AppointmentResponseDto response = service.bookAppointment(dto);
+        return ResponseEntity
+                .created(URI.create("/api/hospital/appointments/" + response.getId()))
+                .body(response);
+    }
+
+    
 
     @GetMapping("/patients")
     public Page<PatientResponseDto> getPatients(Pageable pageable) {
@@ -44,14 +65,6 @@ public class HospitalController {
     @PutMapping("/patients/{id}")
     public PatientResponseDto updatePatient(@PathVariable Long id, @Valid @RequestBody UpdatePatientDto dto) {
         return service.updatePatient(id, dto);
-    }
-
-    // ================= DOCTOR =================
-
-    @PostMapping("/doctors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public DoctorResponseDto addDoctor(@Valid @RequestBody DoctorReqDto dto) {
-        return service.addDoctor(dto);
     }
 
     @GetMapping("/doctors")
@@ -69,16 +82,8 @@ public class HospitalController {
         return service.updateDoctor(id, dto);
     }
 
-    // ================= APPOINTMENT =================
-
-    @PostMapping("/appointments")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AppointmentResponseDto bookAppointment(@Valid @RequestBody AppointmentReqDto dto) {
-        return service.bookAppointment(dto);
-    }
-
     @GetMapping("/appointments")
     public Page<AppointmentResponseDto> getAppointments(Pageable pageable) {
         return service.getAllAppointments(pageable);
     }
-}
+}          

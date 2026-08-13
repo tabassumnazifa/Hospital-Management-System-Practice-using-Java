@@ -1,10 +1,8 @@
 package com.example.hospital.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UpdatePatientDto {
 
     private String name;
