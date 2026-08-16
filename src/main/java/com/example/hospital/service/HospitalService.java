@@ -12,6 +12,7 @@ import com.example.hospital.exception.ResourceNotFoundException;
 import com.example.hospital.model.Appointment;
 import com.example.hospital.model.Doctor;
 import com.example.hospital.model.Patient;
+import com.example.hospital.model.Person;
 import com.example.hospital.repo.AppointmentRepo;
 import com.example.hospital.repo.DoctorRepo;
 import com.example.hospital.repo.PatientRepo;
@@ -22,6 +23,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class HospitalService {
@@ -29,13 +33,17 @@ public class HospitalService {
     private final PatientRepo patientRepo;
     private final DoctorRepo doctorRepo;
     private final AppointmentRepo appointmentRepo;
+    
+    // 🌫️ Abstraction + Dependency Injection:
+    // আমরা সরাসরি EmailNotificationService কে ইনজেক্ট করিনি!
+    // আমরা শুধু Interface (NotificationService) কে ইনজেক্ট করেছি।
+    private final NotificationService notificationService;
 
     // ==================== CREATE PATIENT ====================
 
     public PatientResponseDto addPatient(PatientReqDto dto) {
 
         Patient patient = new Patient();
-
         patient.setName(dto.getName());
         patient.setAge(dto.getAge());
 
@@ -53,7 +61,6 @@ public class HospitalService {
     public DoctorResponseDto addDoctor(DoctorReqDto dto) {
 
         Doctor doctor = new Doctor();
-
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
 
@@ -69,11 +76,10 @@ public class HospitalService {
     // ==================== GET ALL PATIENTS ====================
 
     public Page<PatientResponseDto> getAllPatients(Pageable pageable) {
-
         return patientRepo.findAll(pageable)
                 .map(patient -> new PatientResponseDto(
                         patient.getId(),
-                        patient.getName(),       
+                        patient.getName(),
                         patient.getAge()
                 ));
     }
@@ -81,7 +87,6 @@ public class HospitalService {
     // ==================== GET ALL DOCTORS ====================
 
     public Page<DoctorResponseDto> getAllDoctors(Pageable pageable) {
-
         return doctorRepo.findAll(pageable)
                 .map(doctor -> new DoctorResponseDto(
                         doctor.getId(),
@@ -93,7 +98,6 @@ public class HospitalService {
     // ==================== GET ALL APPOINTMENTS ====================
 
     public Page<AppointmentResponseDto> getAllAppointments(Pageable pageable) {
-
         return appointmentRepo.findAll(pageable)
                 .map(appointment -> new AppointmentResponseDto(
                         appointment.getId(),
@@ -109,7 +113,6 @@ public class HospitalService {
     // ==================== GET PATIENT BY ID ====================
 
     public PatientResponseDto getPatientById(Long id) {
-
         Patient patient = patientRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -127,7 +130,6 @@ public class HospitalService {
     // ==================== GET DOCTOR BY ID ====================
 
     public DoctorResponseDto getDoctorById(Long id) {
-
         Doctor doctor = doctorRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -142,35 +144,35 @@ public class HospitalService {
         );
     }
 
-    // ==================== BOOK APPOINTMENT ====================
+    // ==================== 📦 BOOK APPOINTMENT (ENCAPSULATED + ABSTRACTED!) ====================
 
     public AppointmentResponseDto bookAppointment(AppointmentReqDto dto) {
 
         Patient patient = patientRepo.findById(dto.getPatientId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Patient not found with id "
-                                        + dto.getPatientId()
+                                "Patient not found with id " + dto.getPatientId()
                         )
                 );
 
         Doctor doctor = doctorRepo.findById(dto.getDoctorId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Doctor not found with id "
-                                        + dto.getDoctorId()
+                                "Doctor not found with id " + dto.getDoctorId()
                         )
                 );
 
         Appointment appointment = new Appointment();
+        appointment.book(patient, doctor, dto.getReason(), dto.getDate());
 
-        appointment.setPatient(patient);
-        appointment.setDoctor(doctor);
-        appointment.setReason(dto.getReason());
-        appointment.setDate(dto.getDate());
+        Appointment savedAppointment = appointmentRepo.save(appointment);
 
-        Appointment savedAppointment =
-                appointmentRepo.save(appointment);
+        
+        String recipient = patient.getName(); 
+        String message = "Dear " + patient.getName() + ", your appointment with Dr. " 
+                         + doctor.getName() + " on " + savedAppointment.getDate() + " is confirmed!";
+        
+        notificationService.send(recipient, message);
 
         return new AppointmentResponseDto(
                 savedAppointment.getId(),
@@ -186,13 +188,8 @@ public class HospitalService {
     // ==================== UPDATE PATIENT ====================
 
     public PatientResponseDto updatePatient(Long id, UpdatePatientDto dto) {
-
         Patient patient = patientRepo.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Patient not found with id " + id
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id " + id));
 
         patient.setName(dto.getName());
         patient.setAge(dto.getAge());
@@ -209,13 +206,8 @@ public class HospitalService {
     // ==================== UPDATE DOCTOR ====================
 
     public DoctorResponseDto updateDoctor(Long id, UpdateDoctorDto dto) {
-
         Doctor doctor = doctorRepo.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Doctor not found with id " + id
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id " + id));
 
         doctor.setName(dto.getName());
         doctor.setSpecialization(dto.getSpecialization());
@@ -227,5 +219,17 @@ public class HospitalService {
                 updatedDoctor.getName(),
                 updatedDoctor.getSpecialization()
         );
+    }
+
+    // ==================== POLYMORPHISM DEMO ====================
+
+    public List<String> describeAllPeople() {
+        List<Person> people = new ArrayList<>();
+        people.addAll(patientRepo.findAll());
+        people.addAll(doctorRepo.findAll());
+
+        return people.stream()
+                .map(person -> person.getRole() + " : " + person.getName())
+                .toList();
     }
 }

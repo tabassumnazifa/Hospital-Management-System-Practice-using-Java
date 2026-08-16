@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;  // 🎭 নতুন import (Polymorphism demo-এর জন্য)
 
 @RestController
 @RequestMapping("/api/hospital")
@@ -25,7 +26,8 @@ public class HospitalController {
 
     private final HospitalService service;
 
-   
+    // ==================== CREATE OPERATIONS ====================
+
     @PostMapping("/patients")
     public ResponseEntity<PatientResponseDto> addPatient(@Valid @RequestBody PatientReqDto dto) {
         PatientResponseDto response = service.addPatient(dto);
@@ -50,7 +52,7 @@ public class HospitalController {
                 .body(response);
     }
 
-    
+    // ==================== READ OPERATIONS ====================
 
     @GetMapping("/patients")
     public Page<PatientResponseDto> getPatients(Pageable pageable) {
@@ -60,11 +62,6 @@ public class HospitalController {
     @GetMapping("/patients/{id}")
     public PatientResponseDto getPatientById(@PathVariable Long id) {
         return service.getPatientById(id);
-    }
-
-    @PutMapping("/patients/{id}")
-    public PatientResponseDto updatePatient(@PathVariable Long id, @Valid @RequestBody UpdatePatientDto dto) {
-        return service.updatePatient(id, dto);
     }
 
     @GetMapping("/doctors")
@@ -77,13 +74,27 @@ public class HospitalController {
         return service.getDoctorById(id);
     }
 
+    @GetMapping("/appointments")
+    public Page<AppointmentResponseDto> getAppointments(Pageable pageable) {
+        return service.getAllAppointments(pageable);
+    }
+
+    // ==================== UPDATE OPERATIONS ====================
+
+    @PutMapping("/patients/{id}")
+    public PatientResponseDto updatePatient(@PathVariable Long id, @Valid @RequestBody UpdatePatientDto dto) {
+        return service.updatePatient(id, dto);
+    }
+
     @PutMapping("/doctors/{id}")
     public DoctorResponseDto updateDoctor(@PathVariable Long id, @Valid @RequestBody UpdateDoctorDto dto) {
         return service.updateDoctor(id, dto);
     }
 
-    @GetMapping("/appointments")
-    public Page<AppointmentResponseDto> getAppointments(Pageable pageable) {
-        return service.getAllAppointments(pageable);
+    // ==================== 🎭 POLYMORPHISM DEMO ====================
+
+    @GetMapping("/people")
+    public List<String> getAllPeople() {
+        return service.describeAllPeople();
     }
-}          
+}

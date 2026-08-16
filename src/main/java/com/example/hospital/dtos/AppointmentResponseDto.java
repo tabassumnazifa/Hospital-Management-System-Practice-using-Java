@@ -1,11 +1,11 @@
 package com.example.hospital.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class AppointmentResponseDto {
 
