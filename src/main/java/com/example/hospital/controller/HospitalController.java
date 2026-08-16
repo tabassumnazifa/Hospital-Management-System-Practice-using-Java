@@ -26,7 +26,6 @@ public class HospitalController {
 
     private final HospitalService service;
 
-    // ==================== CREATE OPERATIONS ====================
 
     @PostMapping("/patients")
     public ResponseEntity<PatientResponseDto> addPatient(@Valid @RequestBody PatientReqDto dto) {
@@ -52,7 +51,6 @@ public class HospitalController {
                 .body(response);
     }
 
-    // ==================== READ OPERATIONS ====================
 
     @GetMapping("/patients")
     public Page<PatientResponseDto> getPatients(Pageable pageable) {
@@ -79,7 +77,6 @@ public class HospitalController {
         return service.getAllAppointments(pageable);
     }
 
-    // ==================== UPDATE OPERATIONS ====================
 
     @PutMapping("/patients/{id}")
     public PatientResponseDto updatePatient(@PathVariable Long id, @Valid @RequestBody UpdatePatientDto dto) {
@@ -91,10 +88,9 @@ public class HospitalController {
         return service.updateDoctor(id, dto);
     }
 
-    // ==================== 🎭 POLYMORPHISM DEMO ====================
 
     @GetMapping("/people")
     public List<String> getAllPeople() {
         return service.describeAllPeople();
     }
-}
+}                                                                                                                                                            
